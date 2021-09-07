@@ -22,7 +22,7 @@ def cli():
 @click.option('-1', '--oneline',       help="Print output on a single line", is_flag=True, default=False)
 @click.argument('input-file')
 @click.argument('output-file')
-def convert(input_format, output_format, input_file, output_file, compact):
+def convert(input_format, output_format, input_file, output_file, oneline):
     """Converts INPUT_FILE to OUTPUT_FILE, possibly changing the encoding.\n
       If INPUT_FILE is a single dash ('-'), read from stdin.\n
       If OUTPUT_FILE is a single dash ('-'), write to stdout.
@@ -39,7 +39,7 @@ def convert(input_format, output_format, input_file, output_file, compact):
             raise ValueError("JSON input is ill-formed")
 
         if   output_format == "json":      write_data = json.dumps(data)
-        elif output_format == "michelson": write_data = micheline_to_michelson(data, inline=compact)
+        elif output_format == "michelson": write_data = micheline_to_michelson(data, inline=oneline)
 
         if len(write_data) != 0 and write_data[-1] != '\n':
             write_data += '\n'
