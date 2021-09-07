@@ -1,0 +1,53 @@
+#!/usr/bin/env python
+
+import json
+import logging
+import sys
+
+import click
+import pytezos
+
+michelson_to_micheline = pytezos.michelson.converter.michelson_to_micheline
+micheline_to_michelson = pytezos.michelson.converter.micheline_to_michelson
+is_micheline           = pytezos.michelson.micheline.is_micheline
+FORMATS                = [ 'json', 'michelson' ]
+
+@click.group(help="Tezos utilities for CLI workflows")
+def cli():
+    pass
+
+@cli.command()
+@click.option('-i', '--input-format',  help="INPUT_FILE encoding",           type=click.Choice(FORMATS),default='json',show_default=True)
+@click.option('-o', '--output-format', help="OUTPUT_FILE encoding",          type=click.Choice(FORMATS),default='json',show_default=True)
+@click.option('-1', '--oneline',       help="Print output on a single line", is_flag=True, default=False)
+@click.argument('input-file')
+@click.argument('output-file')
+def convert(input_format, output_format, input_file, output_file, compact):
+    """Converts INPUT_FILE to OUTPUT_FILE, possibly changing the encoding.\n
+      If INPUT_FILE is a single dash ('-'), read from stdin.\n
+      If OUTPUT_FILE is a single dash ('-'), write to stdout.
+    """
+    input_handle  = sys.stdin  if input_file  == "-" else open(input_file,  'r')
+    output_handle = sys.stdout if output_file == "-" else open(output_file, 'w')
+    try:
+        read_data = input_handle.read()
+
+        if   input_format == "json":      data = json.loads(read_data)
+        elif input_format == "michelson": data = michelson_to_micheline(read_data)
+
+        if input_format == "json" and not is_micheline(data):
+            raise ValueError("JSON input is ill-formed")
+
+        if   output_format == "json":      write_data = json.dumps(data)
+        elif output_format == "michelson": write_data = micheline_to_michelson(data, inline=compact)
+
+        if len(write_data) != 0 and write_data[-1] != '\n':
+            write_data += '\n'
+
+        output_handle.write(write_data)
+    finally:
+        input_handle.close()
+        output_handle.close()
+
+if __name__ == "__main__":
+    cli()
