@@ -40,7 +40,7 @@ class Block:
         self.visited   = False
 
         if prim_seq != None: self.build(prim_seq)
-        # sys.stderr.write(self.__repr__() + "\n")
+        logging.debug("Built block - {}".format(self.__repr__()))
 
     def build(self, prim_seq):
         if isinstance(prim_seq, list):
@@ -84,7 +84,7 @@ class Block:
             falseb.addPostEdges([("", joinb)])
             trueb.addPostEdges([("", joinb)])
 
-            # sys.stderr.write("Self: {} TrueB: {} FalseB: {} Join: {}\n".format(self.id, trueb.id, falseb.id, joinb.id))
+            logging.debug("Creating join block - Current Block: {} True Block: {} False Block: {} Join Block: {}".format(self.id, trueb.id, falseb.id, joinb.id))
 
             return BlockType.JOIN, [joinb]
 
@@ -134,9 +134,7 @@ class Block:
         curr = self
         while (curr.postBody != None): curr = curr.postBody
         curr.next += nextBlocks
-        #
-        # if curr == self: sys.stderr.write("SELF: {} NEXT: {}\n".format(self.id, [n[1].id for n in nextBlocks]))
-        # else:            sys.stderr.write("SELF: {} POST: {} NEXT: {}\n".format(self.id, curr.id, [n[1].id for n in nextBlocks]))
+        logging.debug("Adding post block edges - Current Block: {} Post Block: {} Successor Blocks: {}".format(self.id, curr.id, [n[1].id for n in nextBlocks]))
 
 def micheline_to_dot(mcode, skipRevert = False):
     start = Block(mcode)
@@ -149,10 +147,10 @@ def micheline_to_dot(mcode, skipRevert = False):
 
         # skip node if no work to do and already visited
         if (len(curr.parents) == 0 and curr.visited):
-            # sys.stderr.write("NOT VISITING: {}\n".format(curr.__repr__()))
+            logging.debug("Build graph - SKIP block: {}".format(curr.__repr__()))
             continue
 
-        # sys.stderr.write("VISITING: {}\n".format(curr.__repr__()))
+        logging.debug("Build graph - VISIT block: {}".format(curr.__repr__()))
 
         if not curr.visited and not (skipRevert and curr.revert):
             # build node
@@ -175,13 +173,15 @@ def micheline_to_dot(mcode, skipRevert = False):
             for edge_type, parent in curr.parents: graph.edge(parent.id, curr.id, edge_type)
             curr.parents = []
 
-        # sys.stderr.write("QUEUE: {}\n".format([n.id for n in queue]))
+        logging.debug("Build graph - current queue: {}".format([n.id for n in queue]))
 
     return graph.source
 
 @click.group(help="Tezos utilities for CLI workflows")
-def cli():
-    pass
+@click.option('-v', '--verbose', help="Print output verbosely", is_flag=True, default=False)
+def cli(verbose):
+    if verbose: logging.basicConfig(level=logging.DEBUG)
+    return
 
 @cli.command()
 @click.option('-i', '--input-format',  help="INPUT_FILE encoding",           type=click.Choice(INPUT_FORMATS), default='json',show_default=True)
