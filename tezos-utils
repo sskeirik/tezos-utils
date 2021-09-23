@@ -28,6 +28,7 @@ class BlockType(Enum):
 
 class Block:
     def __init__(self, prim_seq, loopy=False, depth=0):
+        # these attributes are used when building a block
         self.loopy     = loopy
         self.code      = ""
         self.next      = []
@@ -37,6 +38,7 @@ class Block:
         self.postBody  = None
         self.revert    = False
 
+        # these attributes are used for block traversal later
         self.parents   = []
         self.visited   = False
 
