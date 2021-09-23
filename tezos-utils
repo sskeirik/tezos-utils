@@ -49,8 +49,9 @@ class Block:
                 blockType, parentBlocks = self.handle(prim)
                 if blockType != BlockType.STD: break
             if blockType == BlockType.BREAK:
-                nextBlock = Block(mprim, depth=self.depth)
-                for parentBlock in parentBlocks: parentBlock.setNext([("", nextBlock)])
+                if len(mprim) != 0:
+                    nextBlock = Block(mprim, depth=self.depth)
+                    for parentBlock in parentBlocks: parentBlock.setNext([("", nextBlock)])
             elif blockType == BlockType.JOIN:
                 assert(len(parentBlocks) == 1)
                 joinBlock = parentBlocks[0]
