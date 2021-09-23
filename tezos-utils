@@ -155,6 +155,10 @@ def micheline_to_dot(mcode, skipRevert = False):
 
         logging.debug("Build graph - VISIT block: {}".format(curr.__repr__()))
 
+        # FAILWITH blocks cannot have successors
+        assert(not curr.revert or len(curr.next) == 0)
+
+        # do not create nodes for already visited blocks or skipped blocks
         if not curr.visited and not (skipRevert and curr.revert):
             # build node
             depthpart = "depth: {}\n".format(curr.depth) if curr.depth > 0 else ""
@@ -169,8 +173,10 @@ def micheline_to_dot(mcode, skipRevert = False):
             for edge in curr.next: edge[1].parents += [(edge[0], curr)]
             queue = [n[1] for n in curr.next] + queue
 
+        # mark node as visited
         curr.visited = True
 
+        # create edges to this block non-skipped blocks
         if not (skipRevert and curr.revert):
             # add edges from all known parent nodes and clear work queue
             for edge_type, parent in curr.parents: graph.edge(parent.id, curr.id, edge_type)
