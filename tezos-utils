@@ -27,7 +27,7 @@ class BlockType(Enum):
     JOIN  = 3
 
 class Block:
-    def __init__(self, mprim, loopy=False, depth=0):
+    def __init__(self, prim_seq, loopy=False, depth=0):
         self.loopy     = loopy
         self.code      = ""
         self.next      = []
@@ -39,27 +39,27 @@ class Block:
         self.parents   = []
         self.visited   = False
 
-        if mprim != None: self.build(mprim)
+        if prim_seq != None: self.build(prim_seq)
         # sys.stderr.write(self.__repr__() + "\n")
 
-    def build(self, mprim):
-        if isinstance(mprim, list):
+    def build(self, prim_seq):
+        if isinstance(prim_seq, list):
             blockType, parentBlocks = BlockType.STD, []
-            while len(mprim) != 0:
-                prim, mprim = mprim[0], mprim[1:]
+            while len(prim_seq) != 0:
+                prim, prim_seq = prim_seq[0], prim_seq[1:]
                 blockType, parentBlocks = self.handle(prim)
                 if blockType != BlockType.STD: break
             if blockType == BlockType.BREAK:
-                if len(mprim) != 0 and len(parentBlocks) != 0:
-                    nextBlock = Block(mprim, depth=self.depth)
-                    for parentBlock in parentBlocks: parentBlock.setNext([("", nextBlock)])
+                if len(prim_seq) != 0 and len(parentBlocks) != 0:
+                    nextBlock = Block(prim_seq, depth=self.depth)
+                    for parentBlock in parentBlocks: parentBlock.addPostEdges([("", nextBlock)])
             elif blockType == BlockType.JOIN:
                 assert(len(parentBlocks) == 1)
                 joinBlock = parentBlocks[0]
-                joinBlock.build(mprim)
+                joinBlock.build(prim_seq)
 
-        elif isinstance(mprim, dict):
-            self.handle(mprim)
+        elif isinstance(prim_seq, dict):
+            self.handle(prim_seq)
 
         self.code = self.code.lstrip()
 
@@ -81,8 +81,8 @@ class Block:
 
             self.next += [('false', falseb), ('true', trueb)]
             self.postBody = joinb
-            falseb.setNext([("", joinb)])
-            trueb.setNext([("", joinb)])
+            falseb.addPostEdges([("", joinb)])
+            trueb.addPostEdges([("", joinb)])
 
             # sys.stderr.write("Self: {} TrueB: {} FalseB: {} Join: {}\n".format(self.id, trueb.id, falseb.id, joinb.id))
 
@@ -129,7 +129,7 @@ class Block:
         instr = micheline_to_michelson(prim)
         self.code += "\n" + instr
 
-    def setNext(self, nextBlocks):
+    def addPostEdges(self, nextBlocks):
         if self.revert: return
         curr = self
         while (curr.postBody != None): curr = curr.postBody
