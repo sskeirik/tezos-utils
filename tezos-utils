@@ -33,6 +33,7 @@ class Block:
         self.next      = []
         self.depth     = depth
         self.id        = str(id(self))
+        self.sid       = self.id[-5:]
         self.postBody  = None
         self.revert    = False
 
@@ -64,7 +65,7 @@ class Block:
         self.code = self.code.lstrip()
 
     def __repr__(self):
-        return "Block(id: {}, parents: {}, loopy: {}, depth: {}, code: {}, next: {})".format(self.id, [p[1].id for p in self.parents], self.loopy, self.depth, self.code.replace('\n',' '), [n[1].id for n in self.next])
+        return "Block(id: {}, parents: {}, loopy: {}, depth: {}, code: {}, next: {})".format(self.sid, [p[1].sid for p in self.parents], self.loopy, self.depth, self.code.replace('\n',' '), [n[1].sid for n in self.next])
 
     def handle(self, prim):
         name = prim['prim']
@@ -84,7 +85,7 @@ class Block:
             falseb.addPostEdges([("", joinb)])
             trueb.addPostEdges([("", joinb)])
 
-            logging.debug("Creating join block - Current Block: {} True Block: {} False Block: {} Join Block: {}".format(self.id, trueb.id, falseb.id, joinb.id))
+            logging.debug("Creating join block - Current Block: {} True Block: {} False Block: {} Join Block: {}".format(self.sid, trueb.sid, falseb.sid, joinb.sid))
 
             return BlockType.JOIN, [joinb]
 
@@ -134,7 +135,7 @@ class Block:
         curr = self
         while (curr.postBody != None): curr = curr.postBody
         curr.next += nextBlocks
-        logging.debug("Adding post block edges - Current Block: {} Post Block: {} Successor Blocks: {}".format(self.id, curr.id, [n[1].id for n in nextBlocks]))
+        logging.debug("Adding post block edges - Current Block: {} Post Block: {} Successor Blocks: {}".format(self.sid, curr.sid, [n[1].sid for n in nextBlocks]))
 
 def micheline_to_dot(mcode, skipRevert = False):
     start = Block(mcode)
@@ -173,7 +174,7 @@ def micheline_to_dot(mcode, skipRevert = False):
             for edge_type, parent in curr.parents: graph.edge(parent.id, curr.id, edge_type)
             curr.parents = []
 
-        logging.debug("Build graph - current queue: {}".format([n.id for n in queue]))
+        logging.debug("Build graph - current queue: {}".format([n.sid for n in queue]))
 
     return graph.source
 
