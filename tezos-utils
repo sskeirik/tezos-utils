@@ -49,7 +49,7 @@ class Block:
                 blockType, parentBlocks = self.handle(prim)
                 if blockType != BlockType.STD: break
             if blockType == BlockType.BREAK:
-                if len(mprim) != 0:
+                if len(mprim) != 0 and len(parentBlocks) != 0:
                     nextBlock = Block(mprim, depth=self.depth)
                     for parentBlock in parentBlocks: parentBlock.setNext([("", nextBlock)])
             elif blockType == BlockType.JOIN:
@@ -89,7 +89,8 @@ class Block:
 
         elif name in REVERT_INSTRS:
             self.append(prim)
-            return BlockType.BREAK, [self]
+            self.revert = True
+            return BlockType.BREAK, []
 
         elif name in LOOP_INSTRS:
             assert(len(args) == 1)
