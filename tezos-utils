@@ -32,7 +32,7 @@ class Block:
         self.code      = ""
         self.next      = []
         self.depth     = depth
-        self.id        = str(id(self))[-5:]
+        self.id        = str(id(self))
         self.postBody  = None
         self.revert    = False
 
