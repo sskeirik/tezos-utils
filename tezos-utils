@@ -34,6 +34,7 @@ class Block:
         self.depth     = depth
         self.id        = str(id(self))[-5:]
         self.postBody  = None
+        self.revert    = False
 
         self.parents   = []
         self.visited   = False
@@ -129,6 +130,7 @@ class Block:
         self.code += "\n" + instr
 
     def setNext(self, nextBlocks):
+        if self.revert: return
         curr = self
         while (curr.postBody != None): curr = curr.postBody
         curr.next += nextBlocks
