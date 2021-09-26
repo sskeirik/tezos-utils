@@ -9,9 +9,9 @@ import click
 import graphviz
 import pytezos
 
-michelson_to_micheline = pytezos.michelson.converter.michelson_to_micheline
-micheline_to_michelson = pytezos.michelson.converter.micheline_to_michelson
-is_micheline           = pytezos.michelson.micheline.is_micheline
+michelson_to_micheline = pytezos.michelson_to_micheline
+micheline_to_michelson = pytezos.micheline_to_michelson
+parse_micheline_prim   = pytezos.michelson.micheline.parse_micheline_prim
 INPUT_FORMATS          = [ 'json', 'michelson' ]
 OUTPUT_FORMATS         = INPUT_FORMATS + [ 'dot' ]
 
@@ -169,6 +169,18 @@ def get_code_section(mcode):
             return code
     # return entire sequence as code
     return mcode
+
+def is_micheline(mcode):
+    if isinstance(mcode, dict):
+        try:
+            parse_micheline_prim(mcode)
+            return True
+        except:
+            return False
+    elif isinstance(mcode, list):
+        return all([is_micheline(prim) for prim in mcode])
+    else:
+        return False
 
 def micheline_to_dot(mcode, skipRevert = False):
     mcode = get_code_section(mcode)
