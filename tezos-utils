@@ -28,9 +28,8 @@ class BlockType(Enum):
     JOIN      = 4
 
 class Block:
-    def __init__(self, prim_seq, loopy=False, depth=0):
+    def __init__(self, prim_seq, depth=0):
         # these attributes are used when building a block
-        self.loopy     = loopy
         self.code      = ""
         self.next      = []
         self.depth     = depth
@@ -115,10 +114,24 @@ class Block:
 
         elif name in LOOP_INSTRS:
             assert(len(args) == 1)
-            loop_body = Block(args[0], loopy=True, depth=self.depth)
-            loop_body.code = name + ":\n" + loop_body.code
-            self.next += [("", loop_body)]
-            self.postBody = loop_body
+            # build loop entry
+            loop_entry = Block(None, depth=self.depth)
+            loop_entry.code += name
+            # build loop body
+            loop_body = Block(args[0], depth=self.depth)
+            # build loop end
+            loop_end = Block(None, depth=self.depth)
+            loop_end.code += name + " END"
+            # set edges
+            self.next += [("", loop_entry)]
+            self.postBody = loop_entry
+            loop_entry.next += [("enter", loop_body)]
+            loop_body.addPostEdges([("", loop_end)])
+            loop_end.next += [("", loop_entry)]
+            # mark loop end for invisible constraint
+            loop_entry.loopEnd = loop_end
+            # return loop entry
+            return BlockType.BREAK, [loop_entry]
 
         elif name in HIDDEN_BLOCK_INSTRS:
             self.append(prim)
@@ -229,9 +242,6 @@ def micheline_to_dot(mcode, skipRevert = False):
             codepart  = "SKIP" if len(curr.code) == 0 else curr.code
             nodelabel = depthpart + codepart
             node = graph.node(curr.id, nodelabel)
-
-            # add self edge if needed
-            if curr.loopy: graph.edge(curr.id, curr.id)
 
             # mark that child nodes need to add edge and queue for processing
             for edge in curr.next: edge[1].parents += [(edge[0], curr)]
