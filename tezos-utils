@@ -141,7 +141,7 @@ class Block:
                 oldlen = len(self.code)
                 self.append(prim)
                 newlen = len(self.code)
-                if newlen - oldlen > 30:
+                if newlen - oldlen > 50:
                     return BlockType.SELFBREAK, []
                 else:
                     return BlockType.STD, []
