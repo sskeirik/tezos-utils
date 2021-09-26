@@ -61,7 +61,9 @@ class Block:
             if blockType == BlockType.BREAK:
                 if len(prim_seq) != 0 and len(parentBlocks) != 0:
                     nextBlock = Block(prim_seq, depth=self.depth)
-                    for parentBlock in parentBlocks: parentBlock.addPostEdges([("", nextBlock)])
+                    for parentBlock in parentBlocks:
+                        parentBlock.next += ([("", nextBlock)])
+                        parentBlock.postBody = nextBlock
             elif blockType == BlockType.SELFBREAK:
                 assert(len(parentBlocks) == 0)
                 nextBlock = Block(prim_seq, depth=self.depth)
