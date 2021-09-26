@@ -115,8 +115,8 @@ class Block:
 
         elif name in LOOP_INSTRS:
             assert(len(args) == 1)
-            prim['args'] = []
             loop_body = Block(args[0], loopy=True, depth=self.depth)
+            loop_body.code = name + ":\n" + loop_body.code
             self.next += [("", loop_body)]
             self.postBody = loop_body
 
