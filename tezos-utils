@@ -253,7 +253,7 @@ def micheline_to_dot(mcode, skipRevert = False):
 @click.group(help="Tezos utilities for CLI workflows")
 @click.option('-v', '--verbose', help="Print output verbosely", is_flag=True, default=False)
 def cli(verbose):
-    if verbose: logging.basicConfig(level=logging.DEBUG)
+    if verbose: logging.basicConfig(level=logging.DEBUG, force=True)
     return
 
 @cli.command()
