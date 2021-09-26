@@ -19,12 +19,13 @@ BRANCH_INSTRS       = [ 'IF', 'IF_CONS', 'IF_LEFT', 'IF_NONE' ]
 REVERT_INSTRS       = [ 'FAILWITH' ]
 LOOP_INSTRS         = [ 'ITER', 'LOOP', 'LOOP_LEFT', 'MAP' ]
 HIDDEN_BLOCK_INSTRS = [ 'EXEC' ]
-SPECIAL_INSTRS      = [ 'DIP' ]
+SPECIAL_INSTRS      = [ 'DIP', 'PUSH' ]
 
 class BlockType(Enum):
-    STD   = 1
-    BREAK = 2
-    JOIN  = 3
+    STD       = 1
+    SELFBREAK = 2
+    BREAK     = 3
+    JOIN      = 4
 
 class Block:
     def __init__(self, prim_seq, loopy=False, depth=0):
@@ -61,6 +62,11 @@ class Block:
                 if len(prim_seq) != 0 and len(parentBlocks) != 0:
                     nextBlock = Block(prim_seq, depth=self.depth)
                     for parentBlock in parentBlocks: parentBlock.addPostEdges([("", nextBlock)])
+            elif blockType == BlockType.SELFBREAK:
+                assert(len(parentBlocks) == 0)
+                nextBlock = Block(prim_seq, depth=self.depth)
+                self.next += [('', nextBlock)]
+                self.postBody = nextBlock
             elif blockType == BlockType.JOIN:
                 assert(len(parentBlocks) == 1)
                 joinBlock = parentBlocks[0]
@@ -130,6 +136,15 @@ class Block:
                 self.next += [("", dip_body)]
                 self.postBody = dip_body
                 return BlockType.BREAK, [dip_body]
+            elif name == 'PUSH':
+                assert(len(args) == 2)
+                oldlen = len(self.code)
+                self.append(prim)
+                newlen = len(self.code)
+                if newlen - oldlen > 30:
+                    return BlockType.SELFBREAK, []
+                else:
+                    return BlockType.STD, []
             else:
                 raise RuntimeError("Should be unreachable")
 
