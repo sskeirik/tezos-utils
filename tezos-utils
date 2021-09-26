@@ -160,6 +160,9 @@ class Block:
         if self.revert: return
         curr = self
         while (curr.postBody != None): curr = curr.postBody
+        if (curr.revert):
+            logging.debug("Skipping adding post block edge - Current Block: {} Post Block: {}".format(self.sid, curr.sid))
+            return
         curr.next += nextBlocks
         logging.debug("Adding post block edges - Current Block: {} Post Block: {} Successor Blocks: {}".format(self.sid, curr.sid, [n[1].sid for n in nextBlocks]))
 
