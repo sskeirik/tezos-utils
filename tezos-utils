@@ -70,6 +70,9 @@ class Block:
             logging.debug(f"Evaluating singleton prim: {prim_seq}")
             self.handle(prim_seq)
 
+        else:
+            raise ValueError(f"Invalid prim seq. Expected: dict or list. Received: {prim_seq}")
+
         self.code = self.code.strip()
 
     def __repr__(self):
