@@ -120,7 +120,7 @@ class Block:
                 dip_body = Block(dip_mcode, depth=depth)
                 self.next += [("", dip_body)]
                 self.postBody = dip_body
-                return True, [dip_body]
+                return BlockType.BREAK, [dip_body]
             else:
                 raise RuntimeError("Should be unreachable")
 
