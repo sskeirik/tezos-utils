@@ -49,6 +49,11 @@ class Block:
         if isinstance(prim_seq, list):
             blockType, parentBlocks = BlockType.STD, []
             while len(prim_seq) != 0:
+                logging.debug(f"Evaluating prim in sequence: {prim_seq[0]}")
+                if isinstance(prim_seq[0], list):
+                    prim_seq = prim_seq[0] + prim_seq[1:]
+                    logging.debug(f"Expand prefix to get new sequence {prim_seq}")
+                    continue
                 prim, prim_seq = prim_seq[0], prim_seq[1:]
                 blockType, parentBlocks = self.handle(prim)
                 if blockType != BlockType.STD: break
@@ -62,6 +67,7 @@ class Block:
                 joinBlock.build(prim_seq)
 
         elif isinstance(prim_seq, dict):
+            logging.debug(f"Evaluating singleton prim: {prim_seq}")
             self.handle(prim_seq)
 
         self.code = self.code.strip()
