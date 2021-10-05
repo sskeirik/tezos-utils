@@ -139,7 +139,26 @@ class Block:
         curr.next += nextBlocks
         logging.debug("Adding post block edges - Current Block: {} Post Block: {} Successor Blocks: {}".format(self.sid, curr.sid, [n[1].sid for n in nextBlocks]))
 
+def get_code_section(mcode):
+    # in this case, we might have a contract literal
+    if isinstance(mcode, list) and len(mcode) == 3:
+        # check that section names are correct
+        sections = dict()
+        for prim in mcode:
+            name,val = prim['prim'], prim['args']
+            # if we encounter an unexpected name, stop
+            if name not in ['parameter', 'storage', 'code'] or name in sections.keys():
+                # our recordeded section names are non-empty, we must have a missing or duplicated contract section
+                if len(sections) != 0: raise ValueError(f"JSON representation of Michelson contract is ill-formed: {mcode}")
+                break
+            sections[name] = val
+        else:
+            return sections['code']
+    # return entire sequence as code
+    return mcode
+
 def micheline_to_dot(mcode, skipRevert = False):
+    mcode = get_code_section(mcode)
     start = Block(mcode)
     graph = graphviz.Digraph('Michelson')
     graph.attr('node', shape='rectangle')
