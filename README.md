@@ -6,6 +6,7 @@ Currently, the following tools are included:
 -   convert - converts Michelson contract literals/expressions between different formats
 
     input formats: Michelson, JSON
+
     output formats: Michelson, JSON, dot
 
 ## Installation
