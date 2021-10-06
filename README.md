@@ -26,7 +26,7 @@ The Python dependencies are all available available via PyPI packages and can be
 
 -   click
 -   graphviz
--   pytezos
+-   pytezos (known to work with version 3.2.11)
 
 ## CFG Generation
 
