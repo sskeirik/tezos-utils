@@ -8,6 +8,25 @@ Currently, the following tools are included:
     input formats: Michelson, JSON
     output formats: Michelson, JSON, dot
 
+## Installation
+
+This tool has system and Python dependencies.
+
+On Ubuntu Linux derivatives, the system dependencies include:
+
+- libsodium-dev
+- libsecp256k1-dev
+- libgmp-dev
+- graphviz
+
+For other distributions, you will need to find the appropriate packages.
+
+The Python dependencies are all available available via PyPI packages and can be installed via `pip`:
+
+-   click
+-   graphviz
+-   pytezos
+
 ## CFG Generation
 
 Using the dot output generator, one can build a CFG for a Michelson script.
