@@ -83,7 +83,7 @@ class Block:
         self.code = self.code.strip()
 
     def __repr__(self):
-        return "Block(id: {}, parents: {}, loopy: {}, revert: {}, depth: {}, code: {}, next: {})".format(self.sid, [p[1].sid for p in self.parents], self.loopy, self.revert, self.depth, self.code.replace('\n',' '), [n[1].sid for n in self.next])
+        return "Block(id: {}, parents: {}, revert: {}, depth: {}, code: {}, next: {})".format(self.sid, [p[1].sid for p in self.parents], self.revert, self.depth, self.code.replace('\n',' '), [n[1].sid for n in self.next])
 
     def handle(self, prim):
         name = prim['prim']
